@@ -38,7 +38,7 @@ app
       if (userFound) {
         console.log("User " + userFound.email + " exists in the database.");
       } else {
-        bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+        bcrypt.hash(req.body.password, saltRounds).then(function(hash) {
           // Store hash in your password DB.
           const newUser = new User({
             email: req.body.username,
@@ -53,7 +53,10 @@ app
             .catch(function (err) {
               console.log(err);
             });
-        });
+        })
+        .catch(function(err){
+          console.log(err);
+        })
       }
     });
   });
@@ -72,14 +75,17 @@ app
       .then(function (userFound) {
         if (userFound) {
           // Load hash from your password DB.
-          bcrypt.compare(password, userFound.password, function (err, result) {
+          bcrypt.compare(password, userFound.password).then(function (result) {
             if (result == true) {
               console.log("User found, logging in...");
               res.render("secrets");
             } else {
               console.log("Check your password, try again!");
             }
-          });
+          })
+          .catch(function(err){
+            console.log(err);
+          })
         } else {
           console.log("Check your username, try again!");
         }
